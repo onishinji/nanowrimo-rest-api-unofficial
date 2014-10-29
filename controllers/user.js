@@ -74,11 +74,7 @@ Controller.prototype.getFriendsAction = function(req, res) {
 
     var user_id = req.validatedValues.params("id");
 
-    var collection = RF.Collection();
-
-    var limit = "100";
-
-    return self.app.db.getFriends(user_id, {page: 1, limit: limit}).then(function(results) {
+    return self.app.db.getFriends(user_id).then(function(results) {
 
         return Promise.props({
             count: results.length,

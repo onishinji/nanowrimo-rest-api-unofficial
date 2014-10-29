@@ -44,7 +44,7 @@ model.prototype.getUsersCount = function() {
 
 
 
-model.prototype.getFriends = function(user_id, pagination) {
+model.prototype.getFriends = function(user_id) {
 
     var self = this;
 
@@ -55,11 +55,8 @@ model.prototype.getFriends = function(user_id, pagination) {
             _.each(results, function(item) {
                 data.push(self.formatUser(item))
             })
-
-            var page = pagination.page;
-            var limit = pagination.limit;
-            
-            resolve(data.slice((page - 1) * limit, (page - 1) * limit + limit));
+ 
+            resolve(data);
 
         }).catch(function(e) {
             reject(e);
@@ -67,15 +64,6 @@ model.prototype.getFriends = function(user_id, pagination) {
 
     });
 }
-
-model.prototype.getFriendsCount = function(user_id) {
-    var self = this;
-
-    return self.storeCrawler.getBuddiesFor(user_id).then(function(results) {
-        return results.length;
-    });
-}
-
 
 model.prototype.getUserById = function(id) {
     var self = this;
