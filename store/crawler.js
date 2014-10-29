@@ -16,7 +16,7 @@ Store = function(app, config) {
 
 Store.prototype.getBuddiesFor = function(id) {
     var self = this;
-    
+
     var firstPage = self.config.endpoint_crawler + "/" + id + "/buddies";
     // First hit, analyse pagination and return urls
     var p = self.grabPaginationsForPage(firstPage);
@@ -32,9 +32,9 @@ Store.prototype.getBuddiesFor = function(id) {
 
         return Promise.all(promises).then(function(results) {
             var friends = [];
-            _.each(results, function(result){
+            _.each(results, function(result) {
 
-                _.each(result, function(buddy){
+                _.each(result, function(buddy) {
                     friends.push(buddy);
                 })
 
@@ -47,6 +47,9 @@ Store.prototype.getBuddiesFor = function(id) {
 }
 
 Store.prototype.grabPaginationsForPage = function(url) {
+
+    var self = this;
+
     return new Promise(function(resolve, reject) {
         var links = [];
         request.get(url, function(error, response, body) {
@@ -56,9 +59,12 @@ Store.prototype.grabPaginationsForPage = function(url) {
 
                 $(".pagination a").each(function(i, elem) {
                     var link = $(this).attr('href');
-                    links[link] = "http://nanowrimo.org/" + link;
-                });
 
+                    var parts = link.split("/");
+                    var idBuddy = "/" + parts[parts.length - 2] + "/" + parts[parts.length - 1];
+                    links[idBuddy] = self.config.endpoint_crawler + idBuddy;
+                });
+                
                 return resolve(_.values(links));
             } else {
                 return reject();
@@ -68,7 +74,6 @@ Store.prototype.grabPaginationsForPage = function(url) {
 }
 
 Store.prototype.grabBuddiesForPage = function(url, pagination) {
-
     return new Promise(function(resolve, reject) {
 
         request.get(url, function(error, response, body) {

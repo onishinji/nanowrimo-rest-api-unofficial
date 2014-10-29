@@ -1,6 +1,8 @@
 var request = require("request");
 var libxmljs = require("libxmljs");
 var util = require("util");
+var _ = require("lodash");
+var parseString = require('xml2js').parseString;
 
 module.exports = function(app, config) {
     return new Store(app, config);
@@ -39,34 +41,67 @@ Store.prototype.getUserById = function(id) {
     var self = this;
 
     return new Promise(function(resolve, reject) {
- 
+
         request.get(self.config.endpoint + "/wc/" + id, function(error, response, body) {
             if (!error && response.statusCode == 200) {
 
-                var xmlDoc = libxmljs.parseXml(response.body);
-                
-                var gchild = xmlDoc.get('//error');
-                if (gchild != undefined) {
-                    var error = new self.app.errorHandler.NotFoundError("", "user", id);
-                    return reject(error);
-                }
+                parseString(response.body, function(err, result) {
 
-                var gchild = xmlDoc.get('//uname');
-                var username = gchild.text();
+                    var user = result.wc;
+                    if (err) {
+                        return reject(new self.app.errorHandler.NotFoundError("", "user", id));
+                    }
 
+                    if (user.error != undefined) {
+                        return reject(new self.app.errorHandler.NotFoundError("", "user", id));
+                    }
+                    
+                    var username = user.uname[0];
+                    var user_wordcount = user.user_wordcount[0];
+                    var uid = username.toLowerCase().trim();
 
-                var gchild = xmlDoc.get('//user_wordcount');
-                var user_wordcount = gchild.text();
+                    return resolve({
+                        id: uid,
+                        name: username,
+                        wordcount: user_wordcount
+                    });
+                })
 
-                var uid = username.toLowerCase().trim();
-
-                return resolve({
-                    id: uid,
-                    name: username,
-                    wordcount: user_wordcount
-                });
             } else {
-                return reject();
+                return reject(new self.app.errorHandler.NotFoundError("", "user", id));
+            }
+        });
+
+    });
+}
+
+
+Store.prototype.getHistory = function(id) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+
+        request.get(self.config.endpoint + "/wchistory/" + id, function(error, response, body) {
+            if (!error && response.statusCode == 200) {
+
+                parseString(response.body, function(err, result) {
+                    var items = [];
+
+                    if (result.wchistory.wordcounts != undefined && result.wchistory.wordcounts.length > 0) {
+                        _.each(result.wchistory.wordcounts[0].wcentry, function(item) {
+
+                            items.push({
+                                wordcount: item.wc[0],
+                                date: item.wcdate[0],
+                            })
+                        })
+                    }
+
+                    return resolve(items);
+                });
+
+            } else {
+                return reject(new self.app.errorHandler.NotFoundError("", "user", id));
             }
         });
 

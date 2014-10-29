@@ -83,3 +83,30 @@ Controller.prototype.getFriendsAction = function(req, res) {
         });
     });
 }
+
+
+Controller.prototype.getHistoryValidation = function() {
+    return [{
+            rules: {
+                id: {
+                    isString: {value: true}
+                }
+            },
+            on: 'params'
+        }];
+}
+
+Controller.prototype.getHistoryAction = function(req, res) {
+    var self = this;
+
+    var user_id = req.validatedValues.params("id");
+
+    return self.app.db.getHistory(user_id).then(function(results) {
+
+        return Promise.props({
+            count: results.length,
+            items: results,
+            links: {}
+        });
+    });
+}

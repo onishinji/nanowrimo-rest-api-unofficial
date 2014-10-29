@@ -42,7 +42,7 @@ describe('API', function() {
         });
 
 
-        it("should handle error on /users/silwek", function(done) {
+        it("should success on /users/silwek", function(done) {
             request(app)
                     .get('/users/silwek')
                     .expect(200, done);
@@ -58,6 +58,24 @@ describe('API', function() {
         it("should grab friends", function(done) {
             request(app)
                     .get('/users/silwek/friends')
+                    .expect(function(res) {
+
+                        if (!('count' in res.body))
+                            return "missing count key";
+
+                        if (!('items' in res.body))
+                            return "missing items key";
+
+                        if (!('links' in res.body))
+                            return "missing links key";
+
+                    })
+                    .expect(200, done);
+        });
+
+         it("should grab history", function(done) {
+            request(app)
+                    .get('/users/silwek/history')
                     .expect(function(res) {
 
                         if (!('count' in res.body))

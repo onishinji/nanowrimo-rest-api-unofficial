@@ -48,27 +48,35 @@ model.prototype.getFriends = function(user_id) {
 
     var self = this;
 
-    return new Promise(function(resolve, reject) {
-        self.storeCrawler.getBuddiesFor(user_id).then(function(results) {
+    return self.storeCrawler.getBuddiesFor(user_id).then(function(results) {
 
-            var data = [];
-            _.each(results, function(item) {
-                data.push(self.formatUser(item))
-            })
- 
-            resolve(data);
-
-        }).catch(function(e) {
-            reject(e);
+        var data = [];
+        _.each(results, function(item) {
+            data.push(self.formatUser(item))
         })
 
+        return data;
+    })
+}
+
+model.prototype.getHistory = function(user_id) {
+    var self = this;
+
+    return self.storeApi.getHistory(user_id).then(function(results) {
+
+        var data = [];
+        _.each(results, function(item) {
+            data.push(item)
+        })
+
+        return data;
     });
 }
 
 model.prototype.getUserById = function(id) {
     var self = this;
 
-    return this.storeApi.getUserById(id).then(function(user){
+    return this.storeApi.getUserById(id).then(function(user) {
         return self.formatUser(user);
     })
 }
@@ -76,14 +84,15 @@ model.prototype.getUserById = function(id) {
 model.prototype.formatUser = function(data) {
     var self = this;
 
-    
+
     return {
         id: data.id,
         name: data.name,
         wordcount: data.wordcount,
         links: {
             self: self.generateUrl("/users/" + data.id),
-            friends: self.generateUrl("/users/" + data.id +"/friends")
+            friends: self.generateUrl("/users/" + data.id + "/friends"),
+            history: self.generateUrl("/users/" + data.id + "/history")
         }
     }
 }
