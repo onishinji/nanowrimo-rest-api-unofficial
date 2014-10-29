@@ -1,6 +1,6 @@
 {
   "name": "Nanowrimo",
-  "description": "evibe serv app",
+  "description": "Nanowrimo-rest-api app",
   "version": "0.0.1",
   "private": true,
   "dependencies": {

@@ -34,8 +34,6 @@ app.use(function(req, res, next) {
     next();
 });
 
-
-
 var errorHandler = RF.Error(config);
 app.errorHandler = errorHandler;
 
@@ -56,9 +54,3 @@ if (config.debug) {
 }
 
 app.listen(app.config.port, app.config.host);
-
- 
-app.close = function() {
-    server.close();
-    FirebaseModel.close();
-}
