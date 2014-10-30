@@ -73,18 +73,81 @@ model.prototype.getHistory = function(user_id) {
     });
 }
 
-model.prototype.getUserById = function(id) {
+model.prototype.getUserById = function(id, date) {
     var self = this;
 
-    return this.storeApi.getUserById(id).then(function(user) {
-        return self.formatUser(user);
-    })
+    return Promise.props({
+        user: this.storeApi.getUserById(id),
+        history: this.storeApi.getHistory(id)
+    }).then(function(results){
+
+        var user = results.user;
+        var today = new Date(date);
+        _.each(results.history, function(item){
+            var month = today.getMonth()+1;
+            if(item.date == today.getFullYear()+"-"+month+"-"+today.getDate()) {
+               user.wordcountToday = item.wordcount;
+            }
+        })
+
+        return self.formatOneUser(user, date);
+
+    });
+
 }
+
+
+model.prototype.formatOneUser = function(data, date) {
+    var self = this;
+
+    var date = new Date(date);
+
+    var userWordToday = 0;
+    var dailyTarget = 0;
+    var nbDayRemaining = null;
+    var wordCountTodayRemaning = 0;
+
+    // we are in november
+    if (date.getMonth() +1  == '11') {
+
+        var currentDay = date.getDate() - 1;
+        var lastDay = 30;
+
+        var nbDayRemaining = lastDay - currentDay;
+
+        var userWordCount = data.wordcount;
+        var userWordToReach = 50000;
+
+        var wordRemaining = userWordToReach - userWordCount;
+
+        userWordToday = data.wordcountToday != undefined ? data.wordcountToday : 0;
+
+        dailyTarget = (wordRemaining - userWordToday) / nbDayRemaining;
+
+        wordCountTodayRemaning = dailyTarget - userWordToday > 0 ? dailyTarget - userWordToday : 0;
+    }
+
+    return {
+        id: data.id,
+        name: data.name,
+        wordcount: data.wordcount,
+        wordCountToday: Math.ceil(userWordToday),
+        wordCountTodayRemaning: Math.ceil(wordCountTodayRemaning),
+        dailyTarget:  Math.ceil(dailyTarget),
+        nbDayRemaining: nbDayRemaining,
+        links: {
+            self: self.generateUrl("/users/" + data.id),
+            friends: self.generateUrl("/users/" + data.id + "/friends"),
+            history: self.generateUrl("/users/" + data.id + "/history")
+        }
+    }
+}
+
 
 model.prototype.formatUser = function(data) {
     var self = this;
 
-
+      
     return {
         id: data.id,
         name: data.name,

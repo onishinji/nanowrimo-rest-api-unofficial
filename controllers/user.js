@@ -52,7 +52,7 @@ Controller.prototype.getUserAction = function(req, res) {
 
     var user_id = req.validatedValues.params("id");
 
-    return self.app.db.getUserById(user_id).then(function(result) {
+    return self.app.db.getUserById(user_id, req.query.date).then(function(result) {
         return result;
     });
 }
