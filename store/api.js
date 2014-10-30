@@ -1,5 +1,4 @@
 var request = require("request");
-var libxmljs = require("libxmljs");
 var util = require("util");
 var _ = require("lodash");
 var parseString = require('xml2js').parseString;

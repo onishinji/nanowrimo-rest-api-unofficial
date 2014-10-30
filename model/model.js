@@ -105,7 +105,7 @@ model.prototype.formatOneUser = function(data, date) {
     var userWordToday = 0;
     var dailyTarget = 0;
     var nbDayRemaining = null;
-    var wordCountTodayRemaning = 0;
+    var dailyTargetRemaining = 0;
 
     // we are in november
     if (date.getMonth() +1  == '11') {
@@ -124,7 +124,7 @@ model.prototype.formatOneUser = function(data, date) {
 
         dailyTarget = (wordRemaining - userWordToday) / nbDayRemaining;
 
-        wordCountTodayRemaning = dailyTarget - userWordToday > 0 ? dailyTarget - userWordToday : 0;
+        dailyTargetRemaining = dailyTarget - userWordToday > 0 ? dailyTarget - userWordToday : 0;
     }
 
     return {
@@ -132,8 +132,8 @@ model.prototype.formatOneUser = function(data, date) {
         name: data.name,
         wordcount: data.wordcount,
         wordCountToday: Math.ceil(userWordToday),
-        wordCountTodayRemaning: Math.ceil(wordCountTodayRemaning),
         dailyTarget:  Math.ceil(dailyTarget),
+        dailyTargetRemaining: Math.ceil(dailyTargetRemaining),
         nbDayRemaining: nbDayRemaining,
         links: {
             self: self.generateUrl("/users/" + data.id),
