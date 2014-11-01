@@ -89,8 +89,8 @@ model.prototype.getUserById = function(id, date) {
         }
         _.each(results.history, function(item) {
             var month = today.getMonth() + 1;
-            if (item.date == today.getFullYear() + "-" + month + "-" + today.getDate()) {
-                user.wordcountToday = item.wordcount;
+            if (item.date == today.getFullYear() + "-" + month + "-" + ("0" + today.getDate()).slice(-2)) {
+                user.wordcountToday = parseInt(item.wordcount);
             }
         })
 
