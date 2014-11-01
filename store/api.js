@@ -56,7 +56,7 @@ Store.prototype.getUserById = function(id) {
                     }
                     
                     var username = user.uname[0];
-                    var user_wordcount = user.user_wordcount[0];
+                    var user_wordcount = parseInt(user.user_wordcount[0]);
                     var uid = username.toLowerCase().trim();
 
                     return resolve({

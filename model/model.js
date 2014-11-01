@@ -79,14 +79,18 @@ model.prototype.getUserById = function(id, date) {
     return Promise.props({
         user: this.storeApi.getUserById(id),
         history: this.storeApi.getHistory(id)
-    }).then(function(results){
+    }).then(function(results) {
 
         var user = results.user;
-        var today = new Date(date);
-        _.each(results.history, function(item){
-            var month = today.getMonth()+1;
-            if(item.date == today.getFullYear()+"-"+month+"-"+today.getDate()) {
-               user.wordcountToday = item.wordcount;
+        var today = new Date();
+
+        if (date != undefined) {
+            today = new Date(date);
+        }
+        _.each(results.history, function(item) {
+            var month = today.getMonth() + 1;
+            if (item.date == today.getFullYear() + "-" + month + "-" + today.getDate()) {
+                user.wordcountToday = item.wordcount;
             }
         })
 
@@ -100,15 +104,18 @@ model.prototype.getUserById = function(id, date) {
 model.prototype.formatOneUser = function(data, date) {
     var self = this;
 
-    var date = new Date(date);
+    var date = new Date();
+
+    if (date != undefined) {
+        date = new Date(date);
+    }
 
     var userWordToday = 0;
     var dailyTarget = 0;
     var nbDayRemaining = null;
     var dailyTargetRemaining = 0;
-
     // we are in november
-    if (date.getMonth() +1  == '11') {
+    if (date.getMonth() + 1 == '11') {
 
         var currentDay = date.getDate() - 1;
         var lastDay = 30;
@@ -130,9 +137,9 @@ model.prototype.formatOneUser = function(data, date) {
     return {
         id: data.id,
         name: data.name,
-        wordcount: data.wordcount,
+        wordcount: parseInt(data.wordcount),
         wordCountToday: Math.ceil(userWordToday),
-        dailyTarget:  Math.ceil(dailyTarget),
+        dailyTarget: Math.ceil(dailyTarget),
         dailyTargetRemaining: Math.ceil(dailyTargetRemaining),
         nbDayRemaining: nbDayRemaining,
         links: {
@@ -147,11 +154,11 @@ model.prototype.formatOneUser = function(data, date) {
 model.prototype.formatUser = function(data) {
     var self = this;
 
-      
+
     return {
         id: data.id,
         name: data.name,
-        wordcount: data.wordcount,
+        wordcount: parseInt(data.wordcount),
         links: {
             self: self.generateUrl("/users/" + data.id),
             friends: self.generateUrl("/users/" + data.id + "/friends"),
