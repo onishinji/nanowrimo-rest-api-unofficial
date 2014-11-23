@@ -129,7 +129,7 @@ model.prototype.formatOneUser = function(data, date) {
 
         userWordToday = data.wordcountToday != undefined ? data.wordcountToday : 0;
 
-        dailyTarget = Math.max(0, (wordRemaining - userWordToday) / nbDayRemaining);
+        dailyTarget = Math.max(0, (wordRemaining + userWordToday) / nbDayRemaining);
 
         dailyTargetRemaining = dailyTarget - userWordToday > 0 ? dailyTarget - userWordToday : 0;
     }
