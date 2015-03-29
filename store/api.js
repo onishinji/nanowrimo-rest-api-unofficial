@@ -46,9 +46,16 @@ Store.prototype.getUserById = function(id) {
                 for(var i = 0; i < history.length; i++) {
                     var date = "day ";
                     date += i+1;
+                    var wordcount = history[i] ? history[i] : 0;
+
+                    if(i > 0) {
+                        var previous = history[i-1] ? history[i-1] : 0;
+                        wordcount = wordcount - previous;
+                    }                    
+
                     h.push({
                         date: date,
-                        wordcount: history[i] ? history[i] : 0
+                        wordcount: parseInt(wordcount)
                     })
                 }
 
