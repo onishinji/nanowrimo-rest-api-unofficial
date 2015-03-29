@@ -76,7 +76,7 @@ model.prototype.formatOneUser = function(data, date) {
         dailyTarget: Math.ceil(dailyTarget),
         dailyTargetRemaining: Math.ceil(dailyTargetRemaining),
         nbDayRemaining: nbDayRemaining,
-        userWordToReach: userWordToReach,
+        userGoal: userWordToReach,
         links: {
             self: self.generateUrl("/users/" + data.id),
             history: self.generateUrl("/users/" + data.id + "/history")
