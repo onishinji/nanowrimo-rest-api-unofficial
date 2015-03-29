@@ -69,6 +69,8 @@ Store.prototype.getUserById = function(id) {
                     dailyTarget: dailyTarget,
                     historics: h
                 });
+            } else {
+                reject(new self.app.errorHandler.NotFoundError("USER", id))
             }
         });
     });
