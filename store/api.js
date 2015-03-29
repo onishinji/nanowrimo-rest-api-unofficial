@@ -36,10 +36,15 @@ Store.prototype.getUserById = function(id) {
 
                 var username = $("p.username a").text();
 
-
                 var code = $($("script")[5]).text();
 
                 var arr = code.match(/\[.*\]/g);
+
+                // not data
+                if(!arr) {
+                    return reject(new self.app.errorHandler.NotFoundError("", "user", id));
+                }
+
                 var history = arr[1].replace("[", "").replace("]", "").split(",");
 
                 var h = [];
@@ -70,7 +75,7 @@ Store.prototype.getUserById = function(id) {
                     historics: h
                 });
             } else {
-                reject(new self.app.errorHandler.NotFoundError("USER", id))
+                return reject(new self.app.errorHandler.NotFoundError("", "user", id));
             }
         });
     });
