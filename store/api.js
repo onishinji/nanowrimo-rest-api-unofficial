@@ -65,7 +65,7 @@ Store.prototype.getUserById = function(id) {
                 }
 
                 return resolve({
-                    id: username,
+                    id: id,
                     name: username,
                     wordcount: userWordCount,
                     userWordToReach: userWordToReach,
