@@ -17,7 +17,7 @@ Controller = function(app, config) {
     return this;
 }
 
-Controller.prototype.getUserValidation = function() {
+Controller.prototype.getCabinValidation = function() {
     return [{
             rules: {
                 id: {
@@ -28,12 +28,12 @@ Controller.prototype.getUserValidation = function() {
         }];
 }
 
-Controller.prototype.getUserAction = function(req, res) {
+Controller.prototype.getCabinAction = function(req, res) {
     var self = this;
 
     var user_id = req.validatedValues.params("id");
 
-    return self.app.db.getUserById(user_id, req.query.date).then(function(result) {
+    return self.app.db.getCabinByUserId(user_id, req.query.date).then(function(result) {
         return result;
     });
 }
@@ -54,7 +54,7 @@ Controller.prototype.getHistoryAction = function(req, res) {
 
     var user_id = req.validatedValues.params("id");
 
-    return self.app.db.getUserHistory(user_id).then(function(results) {
+    return self.app.db.getCabinHistory(user_id).then(function(results) {
 
         return Promise.props({
             count: results.length,

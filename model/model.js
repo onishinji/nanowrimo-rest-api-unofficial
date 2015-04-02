@@ -15,7 +15,7 @@ model = function(app, config) {
     return this;
 }
 
-model.prototype.getHistory = function(user_id) {
+model.prototype.getUserHistory = function(user_id) {
     var self = this;
 
     return self.storeApi.getUserById(user_id).then(function(user) {
@@ -42,9 +42,44 @@ model.prototype.getUserById = function(id, date) {
         return self.formatOneUser(user, date);
 
     });
-
 }
 
+model.prototype.getCabinHistory = function(user_id) {
+    var self = this;
+
+    return self.storeApi.getCabinByUserId(user_id).then(function(user) {
+
+        var results = user.historics;
+        var data = [];
+        _.each(results, function(item) {
+            data.push(item)
+        })
+
+        return data;
+    });
+}
+
+model.prototype.getCabinByUserId = function(id, date) {
+    var self = this;
+
+    return Promise.props({
+        user: this.storeApi.getCabinByUserId(id)
+    }).then(function(results) {
+
+        var user = results.user;
+
+        var cabin = self.formatOneUser(user, date);
+        if(isNaN(cabin.wordcount) && isNaN(cabin.userGoal)) {
+            return new self.app.errorHandler.NotFoundError("", "cabin", id);
+        }
+
+        cabin.links = {
+            self: self.generateUrl("/cabin/" + cabin.id),
+            history: self.generateUrl("/cabin/" + cabin.id + "/history"), 
+        }
+        return cabin;
+    });
+}
 
 model.prototype.formatOneUser = function(data, date) {
     var self = this;
@@ -60,13 +95,12 @@ model.prototype.formatOneUser = function(data, date) {
     var nbDayRemaining = data.nbDayRemaining;
     var dailyTargetRemaining = 0;
 
-        var userWordCount = data.wordcount;
-        var userWordToReach = data.userWordToReach;
+    var userWordCount = data.wordcount;
+    var userWordToReach = data.userWordToReach;
 
-        var wordRemaining = userWordToReach - userWordCount;
+    var wordRemaining = userWordToReach - userWordCount;
 
-        dailyTargetRemaining = dailyTarget - userWordToday > 0 ? dailyTarget - userWordToday : 0;
-    
+    dailyTargetRemaining = dailyTarget - userWordToday > 0 ? dailyTarget - userWordToday : 0;
 
     return {
         id: data.id,
@@ -80,7 +114,8 @@ model.prototype.formatOneUser = function(data, date) {
         averageWordPerDay: data.averageWordPerDay,
         links: {
             self: self.generateUrl("/users/" + data.id),
-            history: self.generateUrl("/users/" + data.id + "/history")
+            history: self.generateUrl("/users/" + data.id + "/history"),
+            cabin: self.generateUrl("/cabin/" + data.id)
         }
     }
 }

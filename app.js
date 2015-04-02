@@ -43,10 +43,13 @@ var Routing = RF.Routing(app, config.security, {
 
 Routing.loadController('api', config);
 Routing.loadController('user', config);
+Routing.loadController('cabin', config);
 
 Routing.loadRoute('GET', '/', 'guest', 'api/main');
 Routing.loadRoute('GET', '/users/:id', 'guest', 'user/user');
 Routing.loadRoute('GET', '/users/:id/history', 'guest', 'user/history');
+Routing.loadRoute('GET', '/cabin/:id', 'guest', 'cabin/cabin');
+Routing.loadRoute('GET', '/cabin/:id/history', 'guest', 'cabin/history');
 
 if (config.debug) {
     console.log("Listening on " + app.config.host + ":" + app.config.port);
