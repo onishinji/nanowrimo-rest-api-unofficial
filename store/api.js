@@ -27,6 +27,7 @@ Store.prototype.getUserById = function(id) {
 
                 $ = cheerio.load(response.body);
 
+                var averageWordPerDay = parseInt($($("#camper_stats dd")[0]).text().replace(",", ""));
                 var wordcountToday = parseInt($($("#camper_stats dd")[2]).text().replace(",", ""));
                 var userWordToReach = parseInt($($("#camper_stats dd")[3]).text().replace(",", ""));
                 var userWordCount = parseInt($($("#camper_stats dd")[4]).text().replace(",", ""));
@@ -64,14 +65,20 @@ Store.prototype.getUserById = function(id) {
                     })
                 }
 
+                nbDayRemaining = nbDayRemaining != undefined ? nbDayRemaining : 0;
+                wordcountToday = wordcountToday != undefined ? wordcountToday : 0;
+                // 
+                dailyTarget = (userWordToReach - userWordCount + wordcountToday) / nbDayRemaining;
+
                 return resolve({
                     id: id,
                     name: username,
                     wordcount: userWordCount,
                     userWordToReach: userWordToReach,
-                    wordcountToday: wordcountToday != undefined ? wordcountToday : 0,
-                    nbDayRemaining: nbDayRemaining != undefined ? nbDayRemaining : 0,
+                    wordcountToday: wordcountToday,
+                    nbDayRemaining: nbDayRemaining,
                     dailyTarget: dailyTarget,
+                    averageWordPerDay: averageWordPerDay,
                     historics: h
                 });
             } else {
