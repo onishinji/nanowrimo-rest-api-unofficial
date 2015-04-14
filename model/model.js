@@ -70,7 +70,7 @@ model.prototype.getCabinByUserId = function(id, date) {
 
         var cabin = self.formatOneUser(user, date);
         if(isNaN(cabin.wordcount) && isNaN(cabin.userGoal)) {
-            return new self.app.errorHandler.NotFoundError("", "cabin", id);
+            return Promise.reject(new self.app.errorHandler.NotFoundError("", "cabin", id));
         }
 
         cabin.links = {
