@@ -40,23 +40,23 @@ Store.prototype.getUserById = function(id) {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-
-        request.get(self.config.endpoint + "/wc/" + id, function(error, response, body) {
+        request.get(self.config.endpoint + "/wc/" + id,{timeout: 1500}, function(error, response, body) {
+            
             if (!error && response.statusCode == 200) {
 
                 parseString(response.body, function(err, result) {
 
-                    var user = result.wc;
                     if (err) {
                         return reject(new self.app.errorHandler.NotFoundError("", "user", id));
                     }
 
-                    if (user.error != undefined) {
+                    var user = result.wc;
+                    if (user.error != undefined && user.error == "user does not exist") {
                         return reject(new self.app.errorHandler.NotFoundError("", "user", id));
                     }
                     
-                    var username = user.uname[0];
-                    var user_wordcount = parseInt(user.user_wordcount[0]);
+                    var username = user.uname && user.uname.length > 0 ? user.uname[0] : id;
+                    var user_wordcount = user.user_wordcount && user.user_wordcount.length > 0 ? parseInt(user.user_wordcount[0]) : 0;
                     var uid = id;
 
                     return resolve({
@@ -67,6 +67,12 @@ Store.prototype.getUserById = function(id) {
                 })
 
             } else {
+                if(error.code && error.code == 'ETIMEDOUT') {
+                    error.statusCode = 503;
+                    return reject(error);
+                }
+
+                console.log(error);
                 return reject(new self.app.errorHandler.NotFoundError("", "user", id));
             }
         });
