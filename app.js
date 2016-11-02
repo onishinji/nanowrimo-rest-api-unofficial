@@ -34,7 +34,45 @@ app.use(function(req, res, next) {
     next();
 });
 
+var winston = require('winston');
+require('winston-papertrail').Papertrail;
+
+var winstonPapertrail = new winston.transports.Papertrail({
+    host: process.env.PAPERTRAIL_HOST,
+    port: process.env.PAPERTRAIL_PORT
+});
+
+var logger = new winston.Logger({
+    transports: [winstonPapertrail]
+});
+
 var errorHandler = RF.Error(config);
+errorHandler.formatError = function(statusCode, message, details) {
+
+    switch (statusCode) {
+        case 400:
+        case 401:
+        case 402:
+        case 403:
+        case 404:
+            logger.warn(statusCode, message, details);
+            break;
+        case 500:
+            logger.error(statusCode, message, details);
+            break;
+        default:
+            logger.info(statusCode, message, details);
+    }
+
+    return {
+        statusCode: statusCode,
+        error: message,
+        details: details,
+        date: new Date()
+    }
+};
+
+
 app.errorHandler = errorHandler;
 
 var Routing = RF.Routing(app, config.security, {
