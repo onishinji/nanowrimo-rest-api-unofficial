@@ -48,7 +48,6 @@ var logger = new winston.Logger({
 
 var errorHandler = RF.Error(config);
 errorHandler.formatError = function(statusCode, message, details) {
-
     switch (statusCode) {
         case 400:
         case 401:
@@ -71,7 +70,6 @@ errorHandler.formatError = function(statusCode, message, details) {
         date: new Date()
     }
 };
-
 
 app.errorHandler = errorHandler;
 
