@@ -15,10 +15,10 @@ model = function(app, config) {
     return this;
 }
 
-model.prototype.getUserHistory = function(user_id) {
+model.prototype.getUserHistory = function(user_id, timezone) {
     var self = this;
 
-    return self.storeApi.getUserById(user_id).then(function(user) {
+    return self.storeApi.getUserById(user_id, timezone).then(function(user) {
 
         var results = user.historics;
         var data = [];
@@ -30,17 +30,16 @@ model.prototype.getUserHistory = function(user_id) {
     });
 }
 
-model.prototype.getUserById = function(id, date) {
+model.prototype.getUserById = function(id, timezone) {
     var self = this;
 
     return Promise.props({
-        user: this.storeApi.getUserById(id)
+        user: this.storeApi.getUserById(id, timezone)
     }).then(function(results) {
 
         var user = results.user;
 
-        return self.formatOneUser(user, date);
-
+        return self.formatOneUser(user);
     });
 }
 
@@ -68,7 +67,7 @@ model.prototype.getCabinByUserId = function(id, date) {
 
         var user = results.user;
 
-        var cabin = self.formatOneUser(user, date);
+        var cabin = self.formatOneUser(user);
         if(isNaN(cabin.wordcount) && isNaN(cabin.userGoal)) {
             return Promise.reject(new self.app.errorHandler.NotFoundError("", "cabin", id));
         }
@@ -77,18 +76,13 @@ model.prototype.getCabinByUserId = function(id, date) {
             self: self.generateUrl("/cabin/" + cabin.id),
             history: self.generateUrl("/cabin/" + cabin.id + "/history"), 
         }
+
         return cabin;
     });
 }
 
-model.prototype.formatOneUser = function(data, date) {
+model.prototype.formatOneUser = function(data) {
     var self = this;
-
-    var date = new Date();
-
-    if (date != undefined) {
-        date = new Date(date);
-    }
 
     var userWordToday = data.wordcountToday != undefined ? data.wordcountToday : 0;
     var dailyTarget = data.dailyTarget;

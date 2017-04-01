@@ -13,7 +13,7 @@
     "morgan": "^1.7.0",
     "xml2js": "*",
     "cheerio": "*",
-    "moment": "*",
+    "moment-timezone": "*",
     "winston": "2.3.0",
     "winston-papertrail": "1.0.3"
   },

@@ -33,13 +33,16 @@ app.use(function(req, res, next) {
 var winston = require('winston');
 require('winston-papertrail').Papertrail;
 
-var winstonPapertrail = new winston.transports.Papertrail({
-    host: process.env.PAPERTRAIL_HOST,
-    port: process.env.PAPERTRAIL_PORT
-});
+var defaultTransport = new (winston.transports.Console)()
+if (process.env.PAPERTRAIL_HOST) {
+    defaultTransport = new winston.transports.Papertrail({
+        host: process.env.PAPERTRAIL_HOST,
+        port: process.env.PAPERTRAIL_PORT
+    });
+}
 
 var logger = new winston.Logger({
-    transports: [winstonPapertrail]
+    transports: [defaultTransport]
 });
 
 logger.stream = {
