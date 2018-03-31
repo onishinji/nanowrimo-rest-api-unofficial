@@ -21,9 +21,7 @@ Store.prototype.getUserById = function(id, timezone) {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-
-        request.get(self.config.endpoint.replace(":username", id), function(error, response, body) {
-
+        request.get(self.config.endpoint.replace(":username", id), { rejectUnauthorized: false }, function(error, response, body) {
             if (!error && response.statusCode == 200) {
 
                 $ = cheerio.load(response.body);
@@ -93,7 +91,7 @@ Store.prototype.getCabinByUserId = function(id) {
 
     return new Promise(function(resolve, reject) {
 
-        request.get(self.config.endpoint.replace(":username", id), function(error, response, body) {
+        request.get(self.config.endpoint.replace(":username", id), { rejectUnauthorized: false }, function(error, response, body) {
 
             // disabled cabin stats, in camp 04/2017 cabin stats aren't available
             return reject(new self.app.errorHandler.NotFoundError("", "cabin", id));
