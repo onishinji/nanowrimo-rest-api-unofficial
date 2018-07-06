@@ -51,7 +51,9 @@ logger.stream = {
     }
 };
 
-app.use(morgan('combined', { stream: logger.stream }));
+if (config.debug) {
+  app.use(morgan('combined', {stream: logger.stream}));
+}
 
 var errorHandler = RF.Error(config);
 errorHandler.formatError = function(statusCode, message, details) {
@@ -80,12 +82,17 @@ var Routing = RF.Routing(app, config.security, {
 Routing.loadController('api', config);
 Routing.loadController('user', config);
 Routing.loadController('cabin', config);
+Routing.loadController('project', config);
 
 Routing.loadRoute('GET', '/', 'guest', 'api/main');
-Routing.loadRoute('GET', '/users/:id', 'guest', 'user/user');
+Routing.loadRoute('GET', '/users/:id', 'guest', 'project/project'); // for v1 a user is a project
 Routing.loadRoute('GET', '/users/:id/history', 'guest', 'user/history');
 Routing.loadRoute('GET', '/cabin/:id', 'guest', 'cabin/cabin');
 Routing.loadRoute('GET', '/cabin/:id/history', 'guest', 'cabin/history');
+
+
+Routing.loadRoute('GET', '/v2/project/:id', 'guest', 'project/project');
+Routing.loadRoute('GET', '/v2/users/:id', 'guest', 'user/user');
 
 if (config.debug) {
     console.log("Listening on " + app.config.host + ":" + app.config.port);

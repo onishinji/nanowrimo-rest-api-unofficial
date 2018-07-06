@@ -17,7 +17,45 @@ Store = function(app, config) {
     return this;
 }
 
-Store.prototype.getUserById = function(id, timezone) {
+Store.prototype.getUserById = function (id) {
+  var self = this;
+
+  return new Promise(function(resolve, reject) {
+    request.get(self.config.endpoint.replace(":username", id), { rejectUnauthorized: false, followRedirect: false }, function(error, response, body) {
+
+      if (error) {
+        return reject(error);
+      }
+
+      if (response.statusCode === 200) {
+        $ = cheerio.load(response.body);
+        var username = $("p.username a").text();
+
+        console.log(username)
+
+        return resolve({
+          id: id,
+          name: username
+        })
+      }
+
+      if (response.statusCode === 302) {
+        return resolve({
+          id: id,
+          name: id
+        })
+      }
+
+      if (response.statusCode === 404) {
+        return reject(new self.app.errorHandler.NotFoundError("", "user", id));
+      }
+
+      return reject(error);
+    })
+  })
+}
+
+Store.prototype.getProjectByUserId = function(id, timezone) {
     var self = this;
 
     return new Promise(function(resolve, reject) {
@@ -41,7 +79,7 @@ Store.prototype.getUserById = function(id, timezone) {
 
                 // not data
                 if(!arr) {
-                    return reject(new self.app.errorHandler.NotFoundError("", "user", id));
+                    return reject(new self.app.errorHandler.NotFoundError("", "project", id));
                 }
 
                 var history = arr[1].replace("[", "").replace("]", "").split(",");
@@ -80,7 +118,7 @@ Store.prototype.getUserById = function(id, timezone) {
                     historics: h
                 });
             } else {
-                return reject(new self.app.errorHandler.NotFoundError("", "user", id));
+                return reject(new self.app.errorHandler.NotFoundError("", "project", id));
             }
         });
     });

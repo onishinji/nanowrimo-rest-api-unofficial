@@ -18,7 +18,7 @@ model = function(app, config) {
 model.prototype.getUserHistory = function(user_id, timezone) {
     var self = this;
 
-    return self.storeApi.getUserById(user_id, timezone).then(function(user) {
+    return self.storeApi.getProjectByUserId(user_id, timezone).then(function(user) {
 
         var results = user.historics;
         var data = [];
@@ -30,16 +30,16 @@ model.prototype.getUserHistory = function(user_id, timezone) {
     });
 }
 
-model.prototype.getUserById = function(id, timezone) {
+model.prototype.getProjectByUserId = function(id, timezone) {
     var self = this;
 
     return Promise.props({
-        user: this.storeApi.getUserById(id, timezone)
+        user: this.storeApi.getProjectByUserId(id, timezone)
     }).then(function(results) {
 
         var user = results.user;
 
-        return self.formatOneUser(user);
+        return self.formatOneProject(user);
     });
 }
 
@@ -67,7 +67,7 @@ model.prototype.getCabinByUserId = function(id, date) {
 
         var user = results.user;
 
-        var cabin = self.formatOneUser(user);
+        var cabin = self.formatOneProject(user);
         if(isNaN(cabin.wordcount) && isNaN(cabin.userGoal)) {
             return Promise.reject(new self.app.errorHandler.NotFoundError("", "cabin", id));
         }
@@ -81,7 +81,7 @@ model.prototype.getCabinByUserId = function(id, date) {
     });
 }
 
-model.prototype.formatOneUser = function(data) {
+model.prototype.formatOneProject = function(data) {
     var self = this;
 
     var userWordToday = data.wordcountToday != undefined ? data.wordcountToday : 0;
@@ -112,4 +112,18 @@ model.prototype.formatOneUser = function(data) {
             cabin: self.generateUrl("/cabin/" + data.id)
         }
     }
+}
+
+
+model.prototype.getUserById = function(id, timezone) {
+  var self = this;
+
+  return Promise.props({
+    user: this.storeApi.getUserById(id, timezone)
+  }).then(function(results) {
+
+    var user = results.user;
+
+    return user;
+  });
 }
