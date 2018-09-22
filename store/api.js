@@ -42,7 +42,7 @@ Store.prototype.getUserById = function(id) {
     return new Promise(function(resolve, reject) {
         request.get(self.config.endpoint + "/wc/" + id,{timeout: 1500}, function(error, response, body) {
             
-            if (!error && response.statusCode == 200) {
+            if (!error && response.statusCode === 200) {
 
                 parseString(response.body, function(err, result) {
 
@@ -51,7 +51,7 @@ Store.prototype.getUserById = function(id) {
                     }
 
                     var user = result.wc;
-                    if (user.error != undefined && user.error == "user does not exist") {
+                    if (user.error !== undefined && user.error.includes("user does not exist")) {
                         return reject(new self.app.errorHandler.NotFoundError("", "user", id));
                     }
                     
@@ -59,27 +59,28 @@ Store.prototype.getUserById = function(id) {
                     var user_wordcount = user.user_wordcount && user.user_wordcount.length > 0 ? parseInt(user.user_wordcount[0]) : 0;
                     var uid = id;
 
+                    var hasNovel = !(user.error !== undefined && user.error.includes("user does not have a current novel"))
+
                     return resolve({
                         id: uid,
                         name: username,
-                        wordcount: user_wordcount
+                        wordcount: user_wordcount,
+                        hasStartedNovel: hasNovel
                     });
                 })
 
             } else {
-                if(error.code && error.code == 'ETIMEDOUT') {
+                if(error.code && error.code === 'ETIMEDOUT') {
                     error.statusCode = 503;
                     return reject(error);
                 }
 
-                console.log(error);
                 return reject(new self.app.errorHandler.NotFoundError("", "user", id));
             }
         });
 
     });
 }
-
 
 Store.prototype.getHistory = function(id) {
     var self = this;

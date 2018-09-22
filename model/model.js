@@ -73,15 +73,19 @@ model.prototype.getHistory = function(user_id) {
     });
 }
 
-model.prototype.getUserById = function(id, date) {
+model.prototype.getProjectById = function(id, date) {
     var self = this;
 
     return Promise.props({
         user: this.storeApi.getUserById(id),
         history: this.storeApi.getHistory(id)
     }).then(function(results) {
-
         var user = results.user;
+
+        if (!user.hasStartedNovel) {
+          return Promise.reject(new self.app.errorHandler.NotFoundError("", "project", id))
+        }
+
         var today = new Date();
 
         if (date != undefined) {
@@ -94,14 +98,22 @@ model.prototype.getUserById = function(id, date) {
             }
         })
 
-        return self.formatOneUser(user, date);
+        return self.formatOneProject(user, date);
 
     });
+}
 
+model.prototype.getUserById = async function (id) {
+  const user = await this.storeApi.getUserById(id)
+
+  return {
+    id: user.id,
+    name: user.name
+  }
 }
 
 
-model.prototype.formatOneUser = function(data, date) {
+model.prototype.formatOneProject = function(data, date) {
     var self = this;
 
     var date = new Date();
@@ -154,7 +166,6 @@ model.prototype.formatOneUser = function(data, date) {
 
 model.prototype.formatUser = function(data) {
     var self = this;
-
 
     return {
         id: data.id,

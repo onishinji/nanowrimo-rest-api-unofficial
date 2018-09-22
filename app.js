@@ -30,42 +30,47 @@ app.use(function(req, res, next) {
     next();
 });
 
-var winston = require('winston');
-require('winston-papertrail').Papertrail;
+if (process.env.PAPERTRAIL_HOST) {
+  var winston = require('winston');
+  require('winston-papertrail').Papertrail;
 
-var winstonPapertrail = new winston.transports.Papertrail({
+  var winstonPapertrail = new winston.transports.Papertrail({
     host: process.env.PAPERTRAIL_HOST,
     port: process.env.PAPERTRAIL_PORT
-});
+  });
 
-var logger = new winston.Logger({
+  var logger = new winston.Logger({
     transports: [winstonPapertrail]
-});
+  });
 
-logger.stream = {
-    write: function(message){
-        logger.info(message);
+  logger.stream = {
+    write: function (message) {
+      logger.info(message);
     }
-};
+  };
 
-app.use(morgan('combined', { stream: logger.stream }));
+  app.use(morgan('combined', {stream: logger.stream}));
+}
 
 var errorHandler = RF.Error(config);
 errorHandler.formatError = function(statusCode, message, details) {
-    switch (statusCode) {
-        case 404:
-            logger.warn(statusCode, message, details);
-            break;
-        default:
-            logger.error(statusCode, message, details);
-    }
 
-    return {
-        statusCode: statusCode,
-        error: message,
-        details: details,
-        date: new Date()
+  if (logger) {
+    switch (statusCode) {
+      case 404:
+        logger.warn(statusCode, message, details);
+        break;
+      default:
+        logger.error(statusCode, message, details);
     }
+  }
+
+  return {
+    statusCode: statusCode,
+    error: message,
+    details: details,
+    date: new Date()
+  }
 };
 
 app.errorHandler = errorHandler;
@@ -76,12 +81,16 @@ var Routing = RF.Routing(app, config.security, {
 
 Routing.loadController('api', config);
 Routing.loadController('user', config);
+Routing.loadController('project', config);
 
 Routing.loadRoute('GET', '/', 'guest', 'api/main');
 Routing.loadRoute('GET', '/users', 'guest', 'user/users');
-Routing.loadRoute('GET', '/users/:id', 'guest', 'user/user');
+Routing.loadRoute('GET', '/users/:id', 'guest', 'project/project'); // for v1 a user is a project
 Routing.loadRoute('GET', '/users/:id/friends', 'guest', 'user/friends');
 Routing.loadRoute('GET', '/users/:id/history', 'guest', 'user/history');
+
+Routing.loadRoute('GET', '/v2/project/:id', 'guest', 'project/project');
+Routing.loadRoute('GET', '/v2/users/:id', 'guest', 'user/user');
 
 if (config.debug) {
     console.log("Listening on " + app.config.host + ":" + app.config.port);
